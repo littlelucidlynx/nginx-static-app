@@ -33,5 +33,5 @@ jobs:
     
     - name: Push the Docker image
       run: |
-        docker login --username ${{ secrets.DOCKERHUB_USERNAME }} --password ${{ secrets.DOCKERHUB_USERNAME }}
+        echo ${{ secrets.DOCKERHUB_USERNAME }} | docker login --username ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
         docker push ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
