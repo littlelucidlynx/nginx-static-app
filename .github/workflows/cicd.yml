@@ -12,35 +12,26 @@ env:
   NAMESPACE: monitoring
 
 jobs:
-  build-and-push:
-    name: Build Docker image
+
+  build:
+    outputs:
+      image_tag: ${{ env.TAG }}
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+    
+    - name: Get files
+      uses: actions/checkout@v3
 
-      - name: Setup Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Extract version from commit messages
-        run: |
-          VERSION=$(git log -1 --pretty=format:%B)
-          if [[ ! -z "$VERSION" ]]; then
-            echo "VERSION=$VERSION" >> $GITHUB_ENV
-          else
-            echo "No version found in the commit message"
-            exit 1
-          fi
-
-      - name: Build and push
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ./Dockerfile
-          push: true
-          tags: ${{ env.IMAGE_TAG }}:${{ env.VERSION }}
+    - name: Set env TAG
+      id: step_tag
+      run: echo "TAG=$(echo ${GITHUB_REF:10})" >> $GITHUB_ENV
+      if: startsWith(github.ref, 'refs/tags/v')
+      
+    - name: Build the Docker image
+      run: docker build . --file ./Dockerfile --tag ${{ env.IMAGE_NAME }}:${{ env.TAG }}
+    
+    - name: Push the Docker image
+      run: |
+        docker login --username ${{ secrets.DOCKERHUB_USERNAME }} --password ${{ secrets.DOCKER_TOKEN }}
+        docker push ${{ env.IMAGE_NAME }}:${{ env.TAG }}
