@@ -1,0 +1,14 @@
+on:
+  push
+
+jobs:
+  get_tag_name:
+    name: Get tag
+    runs-on: ubuntu-latest
+    steps:
+    - uses: mukunku/tag-exists-action@v1.4.0
+      id: checkTag
+      with: 
+        tag: 'v*'
+
+    - run: echo ${{ steps.checkTag.outputs.exists }}
