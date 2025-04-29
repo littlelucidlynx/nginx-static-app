@@ -6,38 +6,46 @@ on:
     tags:
       - 'v*'
 env:
-  IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/static-nginx-app
-  IMAGE_TAG: ${{ github.run_number }}
-  RELEASE_NAME: myapp
+  IMAGE_TAG: ${{ secrets.DOCKERHUB_USERNAME }}/static-nginx-app
+  RELEASE_NAME: static-nginx-app
   NAMESPACE: monitoring
 
 jobs:
-
-  build:
-    outputs:
-      image_tag: ${{ env.IMAGE_TAG }}
+  build-and-push:
+    name: Build Docker image
     runs-on: ubuntu-latest
-
     steps:
-    
-    - name: Get files
-      uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-    - name: Set env IMAGE_TAG
-      id: step_tag
-      run: echo "IMAGE_TAG=$(echo ${GITHUB_REF:10})" >> $GITHUB_ENV
-      if: startsWith(github.ref, 'refs/tags/v')
-      
-    - name: Build the Docker image
-      run: docker build . --file ./Dockerfile --tag ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
-    
-    - name: Push the Docker image
-      run: |
-        echo ${{ secrets.DOCKERHUB_TOKEN }} | docker login --username ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
-        docker push ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Extract version from commit messages
+        run: |
+          VERSION=$(git log -1 --pretty=format:%B)
+          if [[ ! -z "$VERSION" ]]; then
+            echo "VERSION=$VERSION" >> $GITHUB_ENV
+          else
+            echo "No version found in the commit message"
+            exit 1
+          fi
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ env.IMAGE_TAG }}:${{ env.VERSION }}
 
   deploy:
-    needs: build
+    needs: build-and-push
     name: Deploy to Kubernetes
     if: startsWith(github.ref, 'refs/heads/main') || startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
@@ -50,16 +58,6 @@ jobs:
         with:
           version: 'v1.21.0'
 
-
-#      - name: version from commit messages
-#        run: |
-#          COMMIT_MESSAGE=$(git log -1 --pretty=format%B)
-#          if [[ "$COMMIT_MESSAGE" == v* ]]; then
-#            echo "DEPLOY=true" >> $GITHUB_ENV
-#          else 
-#           echo "DEPLOY=false" >> $GITHUB_ENV
-#          fi
- 
       - name: Extract version from commit messages
         run: |
           VERSION=$(git log -1 --pretty=format:%B)
