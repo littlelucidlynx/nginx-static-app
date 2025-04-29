@@ -23,13 +23,13 @@ jobs:
     - name: Get files
       uses: actions/checkout@v3
 
-    - name: Set env TAG
+    - name: Set env IMAGE_TAG
       id: step_tag
-      run: echo "TAG=$(echo ${GITHUB_REF:10})" >> $GITHUB_ENV
+      run: echo "IMAGE_TAG=$(echo ${GITHUB_REF:10})" >> $GITHUB_ENV
       if: startsWith(github.ref, 'refs/tags/v')
       
     - name: Build the Docker image
-      run: docker build . --file ./Dockerfile --tag ${{ env.IMAGE_NAME }}:${{ env.TAG }}
+      run: docker build . --file ./Dockerfile --tag ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
     
     - name: Push the Docker image
       run: |
