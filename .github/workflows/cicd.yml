@@ -15,7 +15,7 @@ jobs:
 
   build:
     outputs:
-      image_tag: ${{ env.TAG }}
+      image_tag: ${{ env.IMAGE_TAG }}
     runs-on: ubuntu-latest
 
     steps:
