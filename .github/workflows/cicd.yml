@@ -6,7 +6,7 @@ on:
     tags:
       - '*'
 env:
-  IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/static-nginx-app
+  IMAGE_NAME: littlelucidlynx/static-nginx-app
   IMAGE_TAG: ${{ github.run_number }}
   RELEASE_NAME: myapp
   NAMESPACE: monitoring
