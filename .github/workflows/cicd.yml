@@ -6,7 +6,7 @@ on:
     tags:
       - '*'
 env:
-  IMAGE_NAME: littlelucidlynx/static-nginx-app
+  IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/static-nginx-app
   IMAGE_TAG: ${{ github.run_number }}
   RELEASE_NAME: myapp
   NAMESPACE: monitoring
@@ -33,5 +33,5 @@ jobs:
     
     - name: Push the Docker image
       run: |
-        docker login --username ${{ secrets.DOCKERHUB_USERNAME }} --password ${{ secrets.DOCKER_TOKEN }}
+        docker login --username ${{ secrets.DOCKER_USERNAME }} --password ${{ secrets.DOCKER_PASSWORD }}
         docker push ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
