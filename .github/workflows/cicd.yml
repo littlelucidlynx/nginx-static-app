@@ -35,7 +35,7 @@ jobs:
           if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
             VERSION=${GITHUB_REF#refs/tags/}
           else
-            VERSION="latest"
+            VERSION="nightly-${{ github.event.head_commit.timestamp }}"
           fi
           echo "Using version: $VERSION"
           echo "VERSION=${VERSION}" >> $GITHUB_ENV
