@@ -8,7 +8,7 @@ jobs:
     steps:
 
     - name: build+push
-      if: ${{ github.ref_name == "" }}
+      if: ${{ github.ref_name == '' }}
       run: echo "NO TAG"
 
     - name: build+push+deploy
