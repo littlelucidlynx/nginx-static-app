@@ -31,7 +31,7 @@ jobs:
 
       - name: Get current data
         run: |
-          echo "{date}={$(date +'%d-%m-%Y-%H-%M-%S')}" >> $GITHUB_ENV
+          echo "date={$(date +'%d-%m-%Y-%H-%M-%S')}" >> $GITHUB_ENV
 
       - name: Extract version from tag or set version to nightly
         run: |
