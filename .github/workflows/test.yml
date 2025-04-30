@@ -1,18 +1,12 @@
-on:
-  push
-
+on: push
 jobs:
-  get_tag_name:
-    name: Get tag
+  prod-check:
+    if: ${{ github.ref_name == "" }}
     runs-on: ubuntu-latest
     steps:
-
-
-      - name: 2nd
-        run: |
-          TAG="v*"
-          if [ $(git tag -l "${TAG}") ]; then
-            echo "Tag ${TAG} exists"
-          else
-            echo "Tag ${TAG} does not exist"
-          fi
+      - run: echo "NO TAG"
+  dev-check:
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "v TAG"
