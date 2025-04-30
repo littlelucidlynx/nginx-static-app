@@ -1,12 +1,16 @@
+name: CI
 on: push
+
 jobs:
-  prod-check:
-    if: ${{ github.ref_name == "" }}
+
+  build:
     runs-on: ubuntu-latest
     steps:
-      - run: echo "NO TAG"
-  dev-check:
-    if: startsWith(github.ref, 'refs/tags/v')
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "v TAG"
+
+    - name: build+push
+      if: ${{ github.ref_name == "" }}
+      run: echo "NO TAG"
+
+    - name: build+push+deploy
+      if: startsWith(github.ref, 'refs/tags/v')
+      run: echo "v TAG"
