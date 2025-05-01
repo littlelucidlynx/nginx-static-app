@@ -31,22 +31,22 @@ jobs:
 
       - name: Get current data
         run: |
-          echo "date=$(date +'%d-%m-%Y-%H-%M-%S')" >> $GITHUB_ENV
+          echo "DATE=$(date +'%d-%m-%Y-%H-%M-%S')" >> $GITHUB_ENV
 
-      - name: Extract version from tag or set version to nightly
+      - name: Extract build from tag or set build to nightly
         run: |
           echo "GITHUB_REF: ${GITHUB_REF}"
           if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
-            VERSION=${GITHUB_REF#refs/tags/}
+            BUILD=${GITHUB_REF#refs/tags/}
           else
-            VERSION="nightly-${{ env.date }}"
+            BUILD="nightly-${{ env.DATE }}"
           fi
-          echo "Using version: $VERSION"
-          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+          echo "Using build: $BUILD"
+          echo "BUILD=${BUILD}" >> $GITHUB_ENV
 
-      - name: Change version in index.html
+      - name: Change build in index.html
         run: |
-          sed -i "s|VERSION|VERSION:${{ env.VERSION }}|" ./index.html
+          sed -i "s|BUILD|BUILD: ${{ env.BUILD }}|" ./index.html
 
       - name: Build and push
         uses: docker/build-push-action@v5
@@ -54,13 +54,13 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ${{ env.IMAGE_TAG }}:${{ env.VERSION }}
+          tags: ${{ env.IMAGE_TAG }}:${{ env.BUILD }}
   
   deploy:
     needs: build-and-push
     name: Deploy to Kubernetes
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: startsWith(github.ref, 'refs/heads/main') || startsWith(github.ref, 'refs/tags/v')
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -74,14 +74,18 @@ jobs:
         with:
           version: 'latest'
 
-      - name: Extract version from tag
+      - name: Extract build from tag
         run: |
           echo "GITHUB_REF: ${GITHUB_REF}"
           if [[ "${GITHUB_REF}" == refs/tags/* ]]; then
-            VERSION=${GITHUB_REF#refs/tags/};
+            BUILD=${GITHUB_REF#refs/tags/};
           fi
-          echo "Using version: $VERSION"
-          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+          echo "Using build: $BUILD"
+          echo "BUILD=${BUILD}" >> $GITHUB_ENV
+
+      - name: Change build in index.html
+        run: |
+          sed -i "s|BUILD|BUILD: ${{ env.BUILD }}|" ./index.html
 
       - name: Replace image tag in deployment.yaml
         run: |
@@ -89,7 +93,7 @@ jobs:
             echo "nginx-static-app.yaml not found in the current directory"
             exit 1
           fi
-          sed -i "s|image: littlelucidlynx/nginx-static-app:.*|image: ${{ env.IMAGE_TAG }}:${{ env.VERSION }}|" ./nginx-static-app.yaml
+          sed -i "s|image: littlelucidlynx/nginx-static-app:.*|image: ${{ env.IMAGE_TAG }}:${{ env.BUILD }}|" ./nginx-static-app.yaml
 
       - name: Create kubeconfig
         run: |
