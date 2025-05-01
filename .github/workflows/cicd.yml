@@ -44,6 +44,10 @@ jobs:
           echo "Using version: $VERSION"
           echo "VERSION=${VERSION}" >> $GITHUB_ENV
 
+      - name: Change version in index.html
+        run: |
+          sed -i "s/VERSION*</p>/VERSION:${{ env.VERSION }}</p>/g" ./index.html
+
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
