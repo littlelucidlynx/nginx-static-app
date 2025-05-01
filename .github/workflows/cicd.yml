@@ -46,7 +46,7 @@ jobs:
 
       - name: Change version in index.html
         run: |
-          sed -i "s|VERSION*</p>|VERSION:${{ env.VERSION }}</p>|" ./index.html
+          sed -i "s|VERSION|VERSION:${{ env.VERSION }}|" ./index.html
 
       - name: Build and push
         uses: docker/build-push-action@v5
