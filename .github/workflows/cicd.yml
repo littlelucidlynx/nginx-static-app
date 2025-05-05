@@ -110,7 +110,3 @@ jobs:
       - name: Apply Kubernetes manifests
         run: |
           kubectl apply -f ./nginx-static-app.yaml
-          kubectl get daemonsets -n monitoring
-          kubectl get pods -n monitoring
-          kubectl describe daemonset myapp -n monitoring
-          kubectl describe service myappsvc -n monitoring

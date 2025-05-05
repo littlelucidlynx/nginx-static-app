@@ -1,22 +1,26 @@
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nginx-static-app
+  labels:
+    app: myapp
+  name: myapp
+  namespace: myproject
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
-      app: nginx-static
+      app: myapp
   template:
     metadata:
+      namespace: myproject
       labels:
-        app: nginx-static
+        app: myapp
     spec:
       containers:
-      - name: nginx
-        image: littlelucidlynx/nginx-static-app:latest
-        ports:
-        - containerPort: 80
+      - name: myapp
+        image: littlelucidlynx/static-nginx-app:init
+      restartPolicy: Always
 ---
 apiVersion: v1
 kind: Service
