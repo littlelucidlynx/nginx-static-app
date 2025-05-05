@@ -89,8 +89,8 @@ jobs:
 
       - name: Replace image tag in deployment.yaml
         run: |
-          if [ ! -f ./nginx-static-app.yaml ]; then
-            echo "nginx-static-app.yaml not found in the current directory"
+          if [ ! -f ./static-nginx-app.yaml ]; then
+            echo "static-nginx-app.yaml not found in the current directory"
             exit 1
           fi
           sed -i "s|image: littlelucidlynx/static-nginx-app:.*|image: ${{ env.IMAGE_TAG }}:${{ env.BUILD }}|" ./static-nginx-app.yaml
