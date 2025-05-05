@@ -93,7 +93,7 @@ jobs:
             echo "nginx-static-app.yaml not found in the current directory"
             exit 1
           fi
-          sed -i "s|image: littlelucidlynx/nginx-static-app:.*|image: ${{ env.IMAGE_TAG }}:${{ env.BUILD }}|" ./nginx-static-app.yaml
+          sed -i "s|image: littlelucidlynx/nginx-static-app:init|image: ${{ env.IMAGE_TAG }}:${{ env.BUILD }}|" ./nginx-static-app.yaml
 
       - name: Create kubeconfig
         run: |
